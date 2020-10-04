@@ -12,9 +12,8 @@ OPTIONS=(1 "List orphan packages"
     3 "Remove cache"
     4 "List failed services"
     5 "Open kernel journal"
-    6 "Full system upgrade"
-    7 "Refresh pacman database"
-    8 "Exit")
+    6 "Full system upgrade"    
+    7 "Exit")
 
 while CHOICE=$(dialog --clear \
         --backtitle "$BACKTITLE" \
@@ -51,12 +50,9 @@ do
             sudo journalctl -p 3 -xb
             ;;
 	6)
-	    sudo pacman -Syyu
-	    ;;
-        7)
-	    sudo pacman -Syy
-	    ;;
-	8)
+	    sudo pacman -Syu
+	    ;;	   	    
+	7)
 	    break
 	    ;;
     esac
