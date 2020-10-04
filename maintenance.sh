@@ -10,7 +10,11 @@ MENU="Choose one of the following options:"
 OPTIONS=(1 "List orphan packages"
     2 "Remove orphan packages"
     3 "Remove cache"
-4 "Exit")
+    4 "Failed services"
+    5 "Print kernel journal"
+    6 "Full system upgrade"
+    7 "Refresh pacman database"
+    8 "Exit")
 
 while CHOICE=$(dialog --clear \
         --backtitle "$BACKTITLE" \
@@ -28,23 +32,33 @@ do
             else
                 echo "No orphan packages found"
             fi
-	    pacman -Qdtq
-	    read -s -n 1 -p "Press any key to continue . . ."
+            pacman -Qdtq
             ;;
         2)
             sudo pacman -Rns $(pacman -Qdtq)
-	    clear
-	    echo "Orphans removed."
-	    read -s -n 1 -p "Press any key to continue . . ."
+            clear
+            echo "Orphans removed."
             ;;
         3)
             sudo rm -rf ~/.cache/*
-	    clear
-	    echo "Cache removed."
-	    read -s -n 1 -p "Press any key to continue . . ."
-	    ;;
-        4)
-            break
+            clear
+            echo "Cache removed." 
             ;;
+        4)
+            systemctl --failed
+	    ;;
+        5)
+            sudo journalctl -p 3 -xb
+            ;;
+	6)
+	    sudo pacman -Syyu
+	    ;;
+        7)
+	    sudo pacman -Syy
+	    ;;
+	8)
+	    break
+	    ;;
     esac
+    read -s -n 1 -p "Press any key to continue . . ."
 done
