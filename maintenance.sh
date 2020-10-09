@@ -39,9 +39,10 @@ do
             echo "Orphans removed."
             ;;
         3)
-            sudo rm -rf ~/.cache/*
+            du -sh ~/.cache/
+	    sudo rm -rf ~/.cache/*
             clear
-            echo "Cache removed." 
+	    echo "Cache size: $(du -sh ~/.cache/) removed."
             ;;
         4)
             systemctl --failed
