@@ -1,5 +1,5 @@
-# Arch Linux Scripts
-This are my Arch Linux configuration scripts.
+# Arch Linux Configuration
+This are my Arch Linux configuration scripts and files.
 
 ## How to run?
 Type `./` followed by the script name:
