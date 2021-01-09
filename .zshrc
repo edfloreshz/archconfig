@@ -102,8 +102,8 @@ source $ZSH/oh-my-zsh.sh
 
 alias i='paru -S'
 alias r='paru -Rscn'
-alias checksys='sudo journalctl -p 3 -xb'
 alias u='paru'
-alias gc='function clonegit() { git clone https://github.com/edfloreshz/$1; };clonegit'
-alias m='sudo sh $HOME/Developer/GitHub/archconfig/maintenance.sh'
-alias dev='function goproj() { cd ~/Developer/GitHub/$1/$2;};goproj'
+alias gcl='function clonegit() { git clone https://github.com/$1/$2; };clonegit'
+alias sys='sudo sh $HOME/Developer/edfloreshz/archconfig/maintenance.sh'
+alias dev='function goproj() { cd $HOME/Developer/$1/$2;};goproj'
+alias vimm='cat $HOME/Developer/edfloreshz/vimconfig/shortcuts.txt'
