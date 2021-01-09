@@ -103,7 +103,15 @@ source $ZSH/oh-my-zsh.sh
 alias i='paru -S'
 alias r='paru -Rscn'
 alias u='paru'
-alias gcl='function clonegit() { git clone https://github.com/$1/$2; };clonegit'
+
 alias sys='sudo sh $HOME/Developer/edfloreshz/archconfig/maintenance.sh'
 alias dev='function goproj() { cd $HOME/Developer/$1/$2;};goproj'
 alias vimm='cat $HOME/Developer/edfloreshz/vimconfig/shortcuts.txt'
+
+alias gcl='function clonegit() { git clone https://github.com/$1/$2; };clonegit'
+alias gp='git push'
+alias gpl='git pull'
+alias gplr='git pull upstream'
+alias gc='git commit -am'
+alias gs='git status'
+alias gl='git log --oneline'
