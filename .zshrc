@@ -104,6 +104,7 @@ alias i='paru -S'
 alias r='paru -Rscn'
 alias u='paru'
 
+alias e='function open() { cd $(find ~/Developer -type d -name "$1" -print -quit) && vim };open'
 alias sys='sudo sh $HOME/Developer/edfloreshz/archconfig/maintenance.sh'
 alias dev='function goproj() { cd $HOME/Developer/$1/$2;};goproj'
 alias vimm='cat $HOME/Developer/edfloreshz/vimconfig/shortcuts.txt'
