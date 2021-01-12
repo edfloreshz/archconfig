@@ -109,6 +109,9 @@ alias sys='sudo sh $HOME/Developer/edfloreshz/archconfig/maintenance.sh'
 alias dev='function goproj() { cd $HOME/Developer/$1/$2;};goproj'
 alias vimm='cat $HOME/Developer/edfloreshz/vimconfig/shortcuts.txt'
 
+alias up='find ~/Developer -maxdepth 2 -mindepth 2 -type d -print > ~/.devpaths'
+alias edit='function open() { cd $(grep "$1" ~/.devpaths) && vim };open'
+
 alias gcl='function clonegit() { git clone https://github.com/$1/$2; };clonegit'
 alias gp='git push'
 alias gpl='git pull'
