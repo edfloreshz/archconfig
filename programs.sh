@@ -1,9 +1,9 @@
 #!/bin/sh
 programs() {
-    yay -Syu
-    yay -S zsh telegram-desktop jetbrains-toolbox cmake visual-studio-code-bin discord timeshift mailspring yakuake
+    paru
+    paru -S zsh telegram-desktop jetbrains-toolbox cmake visual-studio-code-bin discord timeshift mailspring yakuake
     curl -sS https://download.spotify.com/debian/pubkey_0D811D58.gpg | gpg --import -
-    yay -S spotify
+    paru -S spotify
     sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 }
@@ -11,14 +11,14 @@ programs() {
 programsyay() {
     pacman -S --needed git base-devel
     cd ~/Downloads
-    git clone https://aur.archlinux.org/yay.git
-    cd yay
+    git clone https://aur.archlinux.org/paru.git
+    cd paru
     makepkg -si
     programs
     clear
 }
 
-if [[ $(yay) ]];
+if [[ $(paru) ]];
 then
     if [[ $(programs) ]];
     then
