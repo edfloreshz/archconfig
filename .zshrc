@@ -105,7 +105,7 @@ alias i='paru -S'
 alias r='paru -Rscn'
 alias u='paru'
 alias c='clear'
-alias cd='cd $1 && ls'
+alias cl='cl() { cd "$1" && ls}; cl'
 alias sys='sudo sh $HOME/Developer/edfloreshz/archconfig/maintenance.sh'
 
 # Configurations
