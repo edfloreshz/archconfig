@@ -104,6 +104,8 @@ source $ZSH/oh-my-zsh.sh
 alias i='paru -S'
 alias r='paru -Rscn'
 alias u='paru'
+alias c='clear'
+alias cd='cd $1 && ls'
 alias sys='sudo sh $HOME/Developer/edfloreshz/archconfig/maintenance.sh'
 
 # Configurations
