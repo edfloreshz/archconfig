@@ -107,6 +107,7 @@ alias u='paru'
 alias c='clear'
 alias cl='cl() { cd "$1" && ls}; cl'
 alias sys='sudo sh $HOME/Developer/edfloreshz/archconfig/maintenance.sh'
+alias cat='bat'
 
 # Configurations
 alias vimm='cat $HOME/Developer/edfloreshz/vimconfig/shortcuts.txt'
