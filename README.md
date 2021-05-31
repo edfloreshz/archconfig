@@ -1,5 +1,5 @@
-# Arch Linux Configuration
-This are my Arch Linux configuration scripts and files.
+# Dotsy
+Dotsy is a Linux configuration manager that aims to keep your dotfiles synced across all of your machines.
 
 ## How to run?
 Type `./` followed by the script name:
