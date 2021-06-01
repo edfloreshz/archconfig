@@ -6,7 +6,7 @@ use std::sync::mpsc::channel;
 use std::time::Duration;
 
 fn main() {
-    let home = dirs::home_dir().unwrap().join(".dotsy");
+    let home = dirs::data_dir().unwrap().join("dotsy");
     if let Err(e) = fs::create_dir_all(&home) {
         panic!("{} at {:?}", e, home);
     }
