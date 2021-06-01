@@ -1,11 +1,10 @@
 use core::panic;
 use daemonize::Daemonize;
-use notify::{RecommendedWatcher, RecursiveMode, Watcher};
 use std::fs::{self, File};
-use std::sync::mpsc::channel;
-use std::time::Duration;
 
-fn main() {
+use crate::watch::watch;
+
+pub fn construct() {
     let home = dirs::data_dir().unwrap().join("dotsy");
     if let Err(e) = fs::create_dir_all(&home.join("logs")) {
         panic!("{} at {:?}", e, home);
@@ -26,19 +25,5 @@ fn main() {
             }
         }
         Err(e) => eprintln!("Error, {}", e),
-    }
-}
-
-fn watch() -> notify::Result<()> {
-    let home = dirs::home_dir().unwrap();
-    let (tx, rx) = channel();
-    let mut watcher: RecommendedWatcher = Watcher::new(tx, Duration::from_secs(1))?;
-    watcher.watch(&home.join(".zshrc"), RecursiveMode::Recursive)?;
-    watcher.watch(&home.join("Desktop"), RecursiveMode::Recursive)?;
-    loop {
-        match rx.recv() {
-            Ok(event) => println!("{:?}", event),
-            Err(e) => println!("watch error: {:?}", e),
-        }
     }
 }
