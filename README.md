@@ -1,6 +1,8 @@
 # Dotsy
 Dotsy is a Linux configuration manager that aims to keep your dotfiles synced across all of your machines.
 
+# Scripts
+
 ## How to run?
 Type `./` followed by the script name:
 ```bash
