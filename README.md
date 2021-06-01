@@ -1,20 +1,20 @@
 # Dotsy
-Dotsy is a Linux configuration manager that aims to keep your dotfiles synced across all of your machines.
+Dotsy es un administrador de configuración para sistemas operativos basados en UNIX que tiene como objetivo mantener sincronizados dotfiles en todos sus equipos. 
 
 # Scripts
 
-## How to run?
-Type `./` followed by the script name:
+## Ejecución
+Escriba `./` Seguido del nombre del script:
 ```bash
 ./script.sh
 ```
-## Scripts
-`emoji.sh` gives you emoji support, Arch doesn't have emoji by default.
+## Lista de scripts
+`emoji.sh` te da soporte emoji, Arch no tiene emoji por defecto.
 
-`maintenance.sh` allows you to do common maintenance tasks in your system.
+`maintenance.sh` permite realizar tareas de mantenimiento comunes en su sistema.
 
-`control_volume.sh` you can bind this script to a key and control the volume through the keyboard, useful for window managers.
+`control_volume.sh` puede vincular este script a una tecla y controlar el volumen a través del teclado, útil para los administradores de ventanas.
 
-`plasma_theme_switcher.sh` is a automatic theme switcher for the Plasma desktop, run this periodically in your system to update your theme depending on the time of day.
+`plasma_theme_switcher.sh` es un selector automático de temas para el escritorio Plasma, ejecútelo periódicamente en su sistema para actualizar su tema según la hora del día.
 
-`programs.sh` is a script to install all of the programs I need in a new Arch Installation.
+`programmes.sh` es un script para instalar todos los programas que necesito en una nueva instalación de Arch. 
