@@ -6,8 +6,8 @@ use std::sync::mpsc::channel;
 use std::time::Duration;
 
 fn main() {
-    let home = dirs::home_dir().unwrap().join(".dotsy");
-    if let Err(e) = fs::create_dir_all(&home) {
+    let home = dirs::data_dir().unwrap().join("dotsy");
+    if let Err(e) = fs::create_dir_all(&home.join("logs")) {
         panic!("{} at {:?}", e, home);
     }
     let stdout = File::create(home.join("logs/daemon.out")).unwrap();
