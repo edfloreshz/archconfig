@@ -1,25 +1,19 @@
-use std::error;
+use anyhow::{anyhow, Result};
 
 use clap::{App, Arg, ArgMatches, SubCommand};
-use dotsy_core::error::Error;
 use dotsy_core::url::{GitUrl, RepoProvider};
 use dotsy_daemon::daemon::construct;
-
-type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
 
 fn main() -> Result<()> {
     let args = parse_args();
     if args.is_present("daemon") {
         construct()
     }
-    let user = arg_from_subcmd(&args, "pull", "user");
-    let repo = arg_from_subcmd(&args, "pull", "repo");
-    let url = if user.is_ok() && repo.is_ok() {
-        GitUrl::new(RepoProvider::GitHub, user?, repo?)
-    } else {
-        GitUrl::default()
-    };
+    let user = arg_from_subcmd(&args, "pull", "user")?;
+    let repo = arg_from_subcmd(&args, "pull", "repo")?;
+    let url = GitUrl::new(RepoProvider::GitHub, user, repo);
     println!("{}", url.url());
+
     Ok(())
 }
 
@@ -27,10 +21,10 @@ fn arg_from_subcmd(matches: &ArgMatches, sub: &str, arg: &str) -> Result<String>
     if let Some(matches) = matches.subcommand_matches(sub) {
         match matches.value_of(arg) {
             Some(e) => Ok(e.into()),
-            None => Err(Box::new(Error::MissingArg)),
+            None => Err(anyhow!("You must provide an argument.")),
         }
     } else {
-        Err(Box::new(Error::MissingSubCmd))
+        Err(anyhow!("You must provide a subcommand."))
     }
 }
 

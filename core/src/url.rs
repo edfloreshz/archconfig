@@ -28,11 +28,11 @@ impl GitUrl {
             repo,
         }
     }
-    pub fn default() -> GitUrl {
+    pub fn default(provider: RepoProvider) -> GitUrl {
         GitUrl {
-            base: "".into(),
-            user: "".into(),
-            repo: "".into(),
+            base: provider.url(),
+            user: String::new(), //TODO: pull git user
+            repo: String::new(), //TODO: pull default git repo.
         }
     }
     pub fn url(&self) -> String {
