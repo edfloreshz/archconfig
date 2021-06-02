@@ -8,5 +8,5 @@ edition = "2018"
 
 [dependencies]
 daemonize = "0.4.1"
-dirs = "3.0.2"
 notify = "4.0.17"
+dirs = "3.0.2"

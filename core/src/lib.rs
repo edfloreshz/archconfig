@@ -1,2 +1,2 @@
-pub mod config;
-pub mod url;
+pub mod cmd;
+pub mod utils;

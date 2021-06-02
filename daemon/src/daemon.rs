@@ -1,17 +1,13 @@
-use core::panic;
 use daemonize::Daemonize;
-use std::fs::{self, File};
+use dirs;
+use std::fs;
 
 use crate::watch::watch;
 
 pub fn construct() {
     let home = dirs::data_dir().unwrap().join("dotsy");
-    if let Err(e) = fs::create_dir_all(&home.join("logs")) {
-        panic!("{} at {:?}", e, home);
-    }
-    let stdout = File::create(home.join("logs/daemon.out")).unwrap();
-    let stderr = File::create(home.join("logs/daemon.err")).unwrap();
-
+    let stdout = fs::File::open(home.join("logs/daemon.out")).unwrap();
+    let stderr = fs::File::open(home.join("logs/daemon.err")).unwrap();
     let daemonize = Daemonize::new()
         .working_directory(&home) // for default behaviour.
         .stdout(stdout) // Redirect stdout to `/tmp/daemon.out`.

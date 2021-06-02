@@ -1,6 +1,7 @@
+use std::process::exit;
+
 use clap::{App, Arg, ArgMatches, SubCommand};
-use dotsy_core::url::{GitUrl, RepoProvider};
-use dotsy_daemon::daemon::construct;
+use dotsy_core::utils::url::{GitUrl, RepoProvider};
 
 pub struct Command {
     subcommand: Subcomand,
@@ -19,82 +20,98 @@ enum Subcomand {
 }
 
 impl Command {
-    pub fn url(&self) -> String {
+    pub fn new(matches: &ArgMatches) -> Option<Command> {
+        let subcmd: &ArgMatches;
+        let user: Option<&str>;
+        let repo: Option<&str>;
+        let file: Option<&str>;
+        let mut command = Command {
+            subcommand: Subcomand::None,
+            args: vec![],
+        };
+        if matches.is_present("init") {
+            command.subcommand = Subcomand::Init;
+        }
+        if matches.is_present("pub") {
+            command.subcommand = Subcomand::Publish;
+        }
+        if matches.is_present("daemon") {
+            command.subcommand = Subcomand::Daemon;
+        }
+        if matches.is_present("pull") {
+            command.subcommand = Subcomand::Pull;
+            subcmd = matches.subcommand_matches("pull")?;
+            user = subcmd.value_of("user");
+            repo = subcmd.value_of("repo");
+            if user.is_some() && repo.is_some() {
+                command.args.push(user.unwrap().to_string());
+                command.args.push(repo.unwrap().to_string());
+            } else {
+                return None;
+            }
+        } else if matches.is_present("push") {
+            command.subcommand = Subcomand::Push;
+            subcmd = matches.subcommand_matches("push")?;
+            user = subcmd.value_of("user");
+            repo = subcmd.value_of("repo");
+            if user.is_some() && repo.is_some() {
+                command.args.push(user.unwrap().to_string());
+                command.args.push(repo.unwrap().to_string());
+            } else {
+                return None;
+            }
+        } else if matches.is_present("add") {
+            command.subcommand = Subcomand::Add;
+            subcmd = matches.subcommand_matches("add")?;
+            file = subcmd.value_of("file");
+            if file.is_some() {
+                command.args.push(file.unwrap().to_string());
+            } else {
+                return None;
+            }
+        } else if matches.is_present("rem") {
+            command.subcommand = Subcomand::Remove;
+            subcmd = matches.subcommand_matches("rem")?;
+            file = subcmd.value_of("file");
+            if file.is_some() {
+                command.args.push(file.unwrap().to_string());
+            } else {
+                return None;
+            }
+        }
+        Some(command)
+    }
+    pub fn execute(&self) {
+        match self.subcommand {
+            Subcomand::Init => dotsy_core::cmd::config::init(),
+            Subcomand::Daemon => dotsy_daemon::daemon::construct(),
+            Subcomand::Publish => dotsy_core::cmd::publish::now(self.url()),
+            Subcomand::Add => dotsy_core::cmd::add::now(),
+            Subcomand::Remove => dotsy_core::cmd::remove::now(),
+            Subcomand::Push => dotsy_core::cmd::push::now(),
+            Subcomand::Pull => dotsy_core::cmd::pull::now(),
+            Subcomand::None => exit(0),
+        }
+    }
+    pub fn url(&self) -> Option<String> {
         match self.subcommand {
             Subcomand::Push | Subcomand::Pull => {
                 if self.args.len() == 2 {
-                    GitUrl::new(
-                        RepoProvider::GitHub,
-                        self.args[0].clone(),
-                        self.args[1].clone(),
+                    Some(
+                        GitUrl::new(
+                            RepoProvider::GitHub,
+                            self.args[0].clone(),
+                            self.args[1].clone(),
+                        )
+                        .url(),
                     )
-                    .url()
                 } else {
-                    GitUrl::default(RepoProvider::GitHub).url()
+                    Some(GitUrl::default(RepoProvider::GitHub).url())
                 }
             }
-            _ => GitUrl::default(RepoProvider::GitHub).url(),
+            _ => None,
         }
     }
-}
-
-pub fn check_matches(matches: &ArgMatches) -> Option<Command> {
-    let mut command = Command {
-        subcommand: Subcomand::None,
-        args: vec![],
-    };
-    let mut sub: &ArgMatches;
-    let mut user: Option<&str>;
-    let mut repo: Option<&str>;
-    let mut file: Option<&str>;
-    if matches.is_present("init") {
-        command.subcommand = Subcomand::Init;
-        dotsy_core::config::init();
-    }
-    if matches.is_present("pub") {
-        command.subcommand = Subcomand::Publish;
-    }
-    if matches.is_present("daemon") {
-        command.subcommand = Subcomand::Daemon;
-        construct()
-    }
-    if matches.is_present("pull") {
-        command.subcommand = Subcomand::Pull;
-        sub = matches.subcommand_matches("pull")?;
-        user = sub.value_of("user");
-        repo = sub.value_of("repo");
-        if user.is_some() && repo.is_some() {
-            command.args.push(user.unwrap().to_string());
-            command.args.push(repo.unwrap().to_string());
-        }
-    }
-    if matches.is_present("push") {
-        command.subcommand = Subcomand::Push;
-        sub = matches.subcommand_matches("push")?;
-        user = sub.value_of("user");
-        repo = sub.value_of("repo");
-        if user.is_some() && repo.is_some() {
-            command.args.push(user.unwrap().to_string());
-            command.args.push(repo.unwrap().to_string());
-        }
-    }
-    if matches.is_present("add") {
-        command.subcommand = Subcomand::Add;
-        sub = matches.subcommand_matches("add")?;
-        file = sub.value_of("file");
-        if file.is_some() {
-            command.args.push(file.unwrap().to_string())
-        }
-    }
-    if matches.is_present("rem") {
-        command.subcommand = Subcomand::Remove;
-        let sub = matches.subcommand_matches("rem")?;
-        file = sub.value_of("file");
-        if file.is_some() {
-            command.args.push(file.unwrap().to_string())
-        }
-    }
-    Some(command)
 }
 
 pub fn parse_args() -> ArgMatches<'static> {
@@ -161,15 +178,4 @@ pub fn parse_args() -> ArgMatches<'static> {
             SubCommand::with_name("daemon").about("Starts the daemon and shows the output."),
         )
         .get_matches()
-}
-
-pub fn get_sub_arg(matches: &ArgMatches, sub: &str, arg: &str) -> Option<String> {
-    if let Some(matches) = matches.subcommand_matches(sub) {
-        match matches.value_of(arg) {
-            Some(e) => Some(e.into()),
-            None => None,
-        }
-    } else {
-        None
-    }
 }
