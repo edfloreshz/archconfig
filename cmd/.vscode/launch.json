@@ -15,7 +15,7 @@
           "kind": "bin"
         }
       },
-      "args": ["pull", "edfloreshz", "sensei"],
+      "args": ["init"],
       "cwd": "${workspaceFolder}"
     },
     {

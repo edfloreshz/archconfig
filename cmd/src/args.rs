@@ -81,16 +81,17 @@ impl Command {
         }
         Some(command)
     }
-    pub fn execute(&self) {
+    pub fn execute(&self) -> Result<(), std::io::Error> {
         match self.subcommand {
             Subcomand::Init => dotsy_core::cmd::config::init(),
-            Subcomand::Daemon => dotsy_daemon::daemon::construct(),
-            Subcomand::Publish => dotsy_core::cmd::publish::now(self.url()),
-            Subcomand::Add => dotsy_core::cmd::add::now(),
-            Subcomand::Remove => dotsy_core::cmd::remove::now(),
-            Subcomand::Push => dotsy_core::cmd::push::now(),
-            Subcomand::Pull => dotsy_core::cmd::pull::now(),
-            Subcomand::None => exit(0),
+            _ => dotsy_core::cmd::config::init(),
+            // Subcomand::Daemon => dotsy_core::cmd::daemon::start(),
+            // Subcomand::Publish => dotsy_core::cmd::publish::now(self.url()),
+            // Subcomand::Add => dotsy_core::cmd::add::now(),
+            // Subcomand::Remove => dotsy_core::cmd::remove::now(),
+            // Subcomand::Push => dotsy_core::cmd::push::now(),
+            // Subcomand::Pull => dotsy_core::cmd::pull::now(),
+            // Subcomand::None => exit(0),
         }
     }
     pub fn url(&self) -> Option<String> {
