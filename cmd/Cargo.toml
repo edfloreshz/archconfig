@@ -9,3 +9,4 @@ edition = "2018"
 [dependencies]
 clap = "2.33.3"
 dotsy_daemon = { path="../daemon" }
+dotsy_core = { path="../core" }

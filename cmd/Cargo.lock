@@ -94,8 +94,13 @@ name = "dotsy"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "dotsy_core",
  "dotsy_daemon",
 ]
+
+[[package]]
+name = "dotsy_core"
+version = "0.1.0"
 
 [[package]]
 name = "dotsy_daemon"
