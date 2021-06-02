@@ -31,7 +31,7 @@ impl GitUrl {
     pub fn default(provider: RepoProvider) -> GitUrl {
         GitUrl {
             base: provider.url(),
-            user: String::new(), //TODO: pull git user
+            user: String::new(), //TODO: pull git user.
             repo: String::new(), //TODO: pull default git repo.
         }
     }
