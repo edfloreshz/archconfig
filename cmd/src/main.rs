@@ -1,8 +1,8 @@
-mod args;
-use args::{parse_args, Command};
+use dotsy_core::models::args::{parse_args, Command};
 
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     let matches = parse_args();
     let checked = Command::new(&matches);
-    checked.unwrap().execute();
+    checked.unwrap().execute()?;
+    Ok(())
 }

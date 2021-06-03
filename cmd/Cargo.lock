@@ -95,7 +95,6 @@ dependencies = [
 name = "dotsy"
 version = "0.1.0"
 dependencies = [
- "clap",
  "dotsy_core",
  "dotsy_daemon",
 ]
@@ -104,6 +103,7 @@ dependencies = [
 name = "dotsy_core"
 version = "0.1.0"
 dependencies = [
+ "clap",
  "dirs",
  "serde",
  "text_io",
