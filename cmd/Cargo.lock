@@ -105,6 +105,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "dirs",
+ "dotsy_daemon",
  "serde",
  "text_io",
  "toml",

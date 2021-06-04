@@ -1,4 +1,4 @@
-use dotsy_core::models::args::{parse_args, Command};
+use dotsy_core::models::command::{parse_args, Command};
 
 fn main() -> Result<(), std::io::Error> {
     let matches = parse_args();

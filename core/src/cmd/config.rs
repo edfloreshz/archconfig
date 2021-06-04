@@ -1,7 +1,6 @@
-use crate::models::{config::Config};
-use std::{fs};
+use std::fs;
 
-pub fn start(cmd: &Config) -> Result<(), std::io::Error> {
+pub fn start() -> Result<(), std::io::Error> {
     let home = dirs::data_dir().unwrap().join("dotsy");
     if !home.exists() {
         fs::create_dir_all(home.join("logs"))?;
@@ -9,9 +8,8 @@ pub fn start(cmd: &Config) -> Result<(), std::io::Error> {
         fs::File::create(home.join("logs/daemon.out"))?;
         fs::File::create(home.join("logs/daemon.err"))?;
         fs::File::create(home.join("config/config.toml"))?;
-        Ok(())
     } else {
         println!("Configuration already present.");
-        Ok(())
     }
+    Ok(())
 }

@@ -12,3 +12,4 @@ serde = { version = "1.0.126", features = ["derive"] }
 clap = "2.33.3"
 text_io = "0.1.8"
 dirs = "3.0.2"
+dotsy_daemon = { path = "../daemon"}
