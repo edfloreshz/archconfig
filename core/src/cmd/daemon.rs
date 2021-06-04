@@ -1,5 +1,9 @@
-use dotsy_daemon;
+use dotsy_daemon::daemon;
 
 pub fn start() -> Result<(), std::io::Error> {
-    dotsy_daemon::daemon::construct()
+    daemon::construct()
+}
+
+pub fn show() -> Result<(), std::io::Error> {
+    daemon::show()
 }

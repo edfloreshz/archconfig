@@ -15,7 +15,7 @@
           "kind": "bin"
         }
       },
-      "args": ["config"],
+      "args": ["daemon", "--show"],
       "cwd": "${workspaceFolder}"
     },
     {

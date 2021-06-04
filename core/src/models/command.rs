@@ -3,6 +3,8 @@ use crate::utils::url::{GitUrl, RepoProvider};
 use clap::{App, Arg, ArgMatches, SubCommand};
 use std::process::exit;
 
+use super::daemon::DaemonConfig;
+
 pub struct Command {
     subcmd: Subcommand,
     args: Vec<String>,
@@ -10,7 +12,7 @@ pub struct Command {
 
 enum Subcommand {
     Config(AppConfig),
-    Daemon,
+    Daemon(DaemonConfig),
     Publish,
     Add,
     Remove,
@@ -54,7 +56,11 @@ impl Command {
             cmd.subcmd = Subcommand::Publish;
         }
         if matches.is_present("daemon") {
-            cmd.subcmd = Subcommand::Daemon;
+            if matches.subcommand_matches("daemon")?.is_present("show") {
+                cmd.subcmd = Subcommand::Daemon(DaemonConfig { show: true });
+            } else {
+                cmd.subcmd = Subcommand::Daemon(DaemonConfig { show: false });
+            }
         }
         if matches.is_present("pull") {
             cmd.subcmd = Subcommand::Pull;
@@ -105,7 +111,13 @@ impl Command {
                 crate::cmd::config::start()?;
                 config.write()
             }
-            Subcommand::Daemon => crate::cmd::daemon::start(),
+            Subcommand::Daemon(config) => {
+                if config.show {
+                    crate::cmd::daemon::show()
+                } else {
+                    crate::cmd::daemon::start()
+                }
+            }
             // Subcommand::Publish => crate::cmd::publish::now(self.url()),
             // Subcommand::Add => crate::cmd::add::now(),
             // Subcommand::Remove => crate::cmd::remove::now(),
@@ -210,7 +222,14 @@ pub fn parse_args() -> ArgMatches<'static> {
                 ),
         )
         .subcommand(
-            SubCommand::with_name("daemon").about("Starts the daemon and shows the output."),
+            SubCommand::with_name("daemon")
+                .about("Starts the daemon and shows the output.")
+                .arg(
+                    Arg::with_name("show")
+                        .help("Show output from daemon.")
+                        .short("s")
+                        .long("show"),
+                ),
         )
         .get_matches()
 }

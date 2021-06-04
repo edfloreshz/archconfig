@@ -10,3 +10,5 @@ edition = "2018"
 daemonize = "0.4.1"
 notify = "4.0.17"
 dirs = "3.0.2"
+colour = "0.6.0"
+psutil = { version = "3.2.0", default-features = false, features = ["process"] }
