@@ -1,41 +1,35 @@
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug)]
 pub struct GitUrl {
-    base: String,
+    base: RepoProvider,
     user: String,
     repo: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum RepoProvider {
-    GitHub,
-    GitLab,
-    Bitbucket,
-}
-
-impl RepoProvider {
-    fn url(&self) -> String {
-        match self {
-            RepoProvider::GitHub => format!("https://github.com"),
-            RepoProvider::GitLab => format!("https://gitlab.org"),
-            RepoProvider::Bitbucket => format!("https://bitbucket.org"),
-        }
-    }
+    GitHub(String),
+    GitLab(String),
+    Bitbucket(String),
 }
 
 impl GitUrl {
     pub fn new(provider: RepoProvider, user: String, repo: String) -> GitUrl {
         GitUrl {
-            base: provider.url(),
+            base: provider,
             user,
             repo,
         }
     }
     pub fn default(provider: RepoProvider) -> GitUrl {
         GitUrl {
-            base: provider.url(),
+            base: provider,
             user: String::new(), //TODO: pull git user.
             repo: String::new(), //TODO: pull default git repo.
         }
     }
     pub fn url(&self) -> String {
-        format!("{}/{}/{}", self.base, self.user, self.repo)
+        format!("{:?}/{}/{}", self.base, self.user, self.repo)
     }
 }

@@ -1,7 +1,15 @@
-pub fn now(url: Option<String>) {
-    if let Some(url) = url {
-        println!("Publishing your dotfiles to {}", url);
-    } else {
-        println!("No url was provided!",);
-    }
+use crate::utils::url::GitUrl;
+
+#[derive(Debug)]
+pub struct PublishOptions {
+    pub data: GitUrl,
+}
+
+pub fn now(options: &PublishOptions) -> Result<(), std::io::Error> {
+    println!(
+        "Publishing your dotfiles to {}\nOptions: {:?}",
+        options.data.url(),
+        options
+    );
+    Ok(())
 }

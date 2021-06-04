@@ -1,149 +1,152 @@
-use crate::models::config::{AppConfig, Config, ConfigWriter, UserConfig};
-use crate::utils::url::{GitUrl, RepoProvider};
+use crate::cmd::add::AddOptions;
+use crate::cmd::publish::PublishOptions;
+use crate::cmd::pull::PullOptions;
+use crate::cmd::push::PushOptions;
+use crate::cmd::remove::RemoveOptions;
+use crate::models::config::{AppOptions, Config, ConfigWriter, UserConfig};
+use crate::utils::url::GitUrl;
 use clap::{App, Arg, ArgMatches, SubCommand};
+use std::env;
+use std::fs::File;
 use std::process::exit;
 
-use super::daemon::DaemonConfig;
+use crate::cmd::daemon::DaemonOptions;
 
 pub struct Command {
     subcmd: Subcommand,
-    args: Vec<String>,
 }
 
 enum Subcommand {
-    Config(AppConfig),
-    Daemon(DaemonConfig),
-    Publish,
-    Add,
-    Remove,
-    Push,
-    Pull,
+    Config(AppOptions),
+    Daemon(DaemonOptions),
+    Publish(PublishOptions),
+    Add(AddOptions),
+    Remove(RemoveOptions),
+    Push(PushOptions),
+    Pull(PullOptions),
     None,
 }
 
 impl Command {
     pub fn new(matches: &ArgMatches) -> Option<Command> {
         let subcmd: &ArgMatches;
-        let user: Option<&str>;
-        let repo: Option<&str>;
-        let file: Option<&str>;
-
+        let file: Option<File>;
+        let path = env::current_dir().unwrap();
+        let config =
+            std::fs::read_to_string(dirs::data_dir().unwrap().join("dotsy/logs/conf.toml"));
+        let userconf: UserConfig = match config {
+            Ok(e) => toml::from_str(e.as_str()).unwrap(),
+            Err(_) => panic!("Failed to get config."),
+        };
         let mut cmd = Command {
             subcmd: Subcommand::None,
-            args: vec![],
         };
         if matches.is_present("config") {
+            let provider = matches.subcommand_matches("config")?.value_of("provider")?;
             let home = dirs::data_dir()?.join("dotsy");
             let info = if !home.exists() {
-                Some(UserConfig::ask())
+                Some(UserConfig::ask(provider))
             } else {
                 None
             };
             if matches.subcommand_matches("config")?.is_present("show") {}
             if matches.subcommand_matches("config")?.is_present("color") {
-                cmd.subcmd = Subcommand::Config(AppConfig {
+                cmd.subcmd = Subcommand::Config(AppOptions {
                     config: Some(Config { color: true }),
                     user: info,
                 });
             } else {
-                cmd.subcmd = Subcommand::Config(AppConfig {
+                cmd.subcmd = Subcommand::Config(AppOptions {
                     config: Some(Config { color: false }),
                     user: info,
                 });
             }
         }
         if matches.is_present("pub") {
-            cmd.subcmd = Subcommand::Publish;
+            cmd.subcmd = Subcommand::Publish(PublishOptions {
+                //TODO Get data from config.
+                data: GitUrl::new(
+                    userconf.provider.clone(),
+                    userconf.username.clone(),
+                    userconf.repository.clone(),
+                ),
+            });
         }
         if matches.is_present("daemon") {
             if matches.subcommand_matches("daemon")?.is_present("show") {
-                cmd.subcmd = Subcommand::Daemon(DaemonConfig { show: true });
+                cmd.subcmd = Subcommand::Daemon(DaemonOptions { show: true });
             } else {
-                cmd.subcmd = Subcommand::Daemon(DaemonConfig { show: false });
+                cmd.subcmd = Subcommand::Daemon(DaemonOptions { show: false });
             }
         }
         if matches.is_present("pull") {
-            cmd.subcmd = Subcommand::Pull;
             subcmd = matches.subcommand_matches("pull")?;
-            user = subcmd.value_of("user");
-            repo = subcmd.value_of("repo");
-            if user.is_some() && repo.is_some() {
-                cmd.args.push(user.unwrap().to_string());
-                cmd.args.push(repo.unwrap().to_string());
+            if subcmd.value_of("user").is_some() && subcmd.value_of("repo").is_some() {
+                cmd.subcmd = Subcommand::Pull(PullOptions {
+                    data: GitUrl::new(
+                        userconf.provider.clone(),
+                        userconf.username.clone(),
+                        userconf.repository.clone(),
+                    ),
+                });
             } else {
-                return None;
+                cmd.subcmd = Subcommand::Pull(PullOptions {
+                    data: GitUrl::default(userconf.provider.clone()),
+                });
             }
         } else if matches.is_present("push") {
-            cmd.subcmd = Subcommand::Push;
             subcmd = matches.subcommand_matches("push")?;
-            user = subcmd.value_of("user");
-            repo = subcmd.value_of("repo");
-            if user.is_some() && repo.is_some() {
-                cmd.args.push(user.unwrap().to_string());
-                cmd.args.push(repo.unwrap().to_string());
+            if subcmd.value_of("user").is_some() && subcmd.value_of("repo").is_some() {
+                cmd.subcmd = Subcommand::Push(PushOptions {
+                    data: GitUrl::new(
+                        userconf.provider.clone(),
+                        userconf.username.clone(),
+                        userconf.repository.clone(),
+                    ),
+                });
             } else {
                 return None;
             }
         } else if matches.is_present("add") {
-            cmd.subcmd = Subcommand::Add;
             subcmd = matches.subcommand_matches("add")?;
-            file = subcmd.value_of("file");
-            if file.is_some() {
-                cmd.args.push(file.unwrap().to_string());
+            let file_path = path.join(subcmd.value_of("file").unwrap());
+            if file_path.exists() {
+                file = Some(File::open(file_path).unwrap());
             } else {
-                return None;
+                file = None;
             }
+            cmd.subcmd = Subcommand::Add(AddOptions { file });
         } else if matches.is_present("rem") {
-            cmd.subcmd = Subcommand::Remove;
             subcmd = matches.subcommand_matches("rem")?;
-            file = subcmd.value_of("file");
-            if file.is_some() {
-                cmd.args.push(file.unwrap().to_string());
+            let file_path = path.join(subcmd.value_of("file").unwrap());
+            if file_path.exists() {
+                file = Some(File::open(file_path).unwrap());
             } else {
-                return None;
+                file = None;
             }
+            cmd.subcmd = Subcommand::Remove(RemoveOptions { file });
         }
         Some(cmd)
     }
     pub fn execute(&self) -> Result<(), std::io::Error> {
         match &self.subcmd {
-            Subcommand::Config(config) => {
+            Subcommand::Config(options) => {
                 crate::cmd::config::start()?;
-                config.write()
+                options.write()
             }
-            Subcommand::Daemon(config) => {
-                if config.show {
+            Subcommand::Daemon(options) => {
+                if options.show {
                     crate::cmd::daemon::show()
                 } else {
                     crate::cmd::daemon::start()
                 }
             }
-            // Subcommand::Publish => crate::cmd::publish::now(self.url()),
-            // Subcommand::Add => crate::cmd::add::now(),
-            // Subcommand::Remove => crate::cmd::remove::now(),
-            // Subcommand::Push => crate::cmd::push::now(),
-            // Subcommand::Pull => crate::cmd::pull::now(),
+            Subcommand::Publish(options) => crate::cmd::publish::now(options),
+            Subcommand::Add(options) => crate::cmd::add::now(options),
+            Subcommand::Remove(options) => crate::cmd::remove::now(options),
+            Subcommand::Push(options) => crate::cmd::push::now(options),
+            Subcommand::Pull(options) => crate::cmd::pull::now(options),
             Subcommand::None => exit(0),
-            _ => Ok(()),
-        }
-    }
-    pub fn url(&self) -> Option<String> {
-        match self.subcmd {
-            Subcommand::Push | Subcommand::Pull => {
-                if self.args.len() == 2 {
-                    Some(
-                        GitUrl::new(
-                            RepoProvider::GitHub,
-                            self.args[0].clone(),
-                            self.args[1].clone(),
-                        )
-                        .url(),
-                    )
-                } else {
-                    Some(GitUrl::default(RepoProvider::GitHub).url())
-                }
-            }
-            _ => None,
         }
     }
 }
@@ -156,6 +159,14 @@ pub fn parse_args() -> ArgMatches<'static> {
         .subcommand(
             SubCommand::with_name("config")
                 .about("Initializes local configuration.")
+                .arg(
+                    Arg::with_name("provider")
+                        .short("p")
+                        .long("provider")
+                        .required(true)
+                        .index(1)
+                        .takes_value(true),
+                )
                 .arg(
                     Arg::with_name("color")
                         .short("c")
