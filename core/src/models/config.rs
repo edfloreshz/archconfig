@@ -68,11 +68,14 @@ impl UserConfig {
             },
         }
     }
-    pub fn default() -> UserConfig {
+    pub fn new(data: UserConfig) -> UserConfig {
         UserConfig {
-            username: String::new(),
-            repository: String::new(),
-            provider: String::new(),
+            provider: data.provider,
+            username: data.username,
+            repository: data.repository,
         }
+    }
+    pub fn url(&self) -> String {
+        format!("{}/{}/{}", self.provider, self.username, self.repository)
     }
 }

@@ -1,8 +1,8 @@
-use crate::utils::url::GitUrl;
+use crate::models::config::UserConfig;
 
 #[derive(Debug)]
 pub struct PublishOptions {
-    pub data: GitUrl,
+    pub data: UserConfig,
 }
 
 pub fn now(options: &PublishOptions) -> Result<(), std::io::Error> {

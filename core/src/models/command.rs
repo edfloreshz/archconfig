@@ -4,7 +4,6 @@ use crate::cmd::pull::PullOptions;
 use crate::cmd::push::PushOptions;
 use crate::cmd::remove::RemoveOptions;
 use crate::models::config::{AppOptions, Config, ConfigWriter, UserConfig};
-use crate::utils::url::GitUrl;
 use clap::{App, Arg, ArgMatches, SubCommand};
 use std::env;
 use std::fs::File;
@@ -65,7 +64,7 @@ impl Command {
         }
         if matches.is_present("pub") {
             cmd.subcmd = Subcommand::Publish(PublishOptions {
-                data: GitUrl::new(configuration.clone().user?),
+                data: UserConfig::new(configuration.clone().user?),
             });
         }
         if matches.is_present("daemon") {
@@ -79,30 +78,30 @@ impl Command {
             subcmd = matches.subcommand_matches("pull")?;
             if subcmd.value_of("user").is_some() && subcmd.value_of("repo").is_some() {
                 cmd.subcmd = Subcommand::Pull(PullOptions {
-                    data: GitUrl::new(UserConfig {
+                    data: UserConfig {
                         provider: configuration.user?.provider,
                         username: subcmd.value_of("user")?.to_string(),
                         repository: subcmd.value_of("repo")?.to_string(),
-                    }),
+                    },
                 });
             } else {
                 cmd.subcmd = Subcommand::Pull(PullOptions {
-                    data: GitUrl::new(configuration.user?),
+                    data: UserConfig::new(configuration.user?),
                 });
             }
         } else if matches.is_present("push") {
             subcmd = matches.subcommand_matches("push")?;
             if subcmd.value_of("user").is_some() && subcmd.value_of("repo").is_some() {
                 cmd.subcmd = Subcommand::Pull(PullOptions {
-                    data: GitUrl::new(UserConfig {
+                    data: UserConfig {
                         provider: configuration.user?.provider,
                         username: subcmd.value_of("user")?.to_string(),
                         repository: subcmd.value_of("repo")?.to_string(),
-                    }),
+                    },
                 });
             } else {
                 cmd.subcmd = Subcommand::Push(PushOptions {
-                    data: GitUrl::new(configuration.user?),
+                    data: UserConfig::new(configuration.user?),
                 })
             }
         } else if matches.is_present("add") {
