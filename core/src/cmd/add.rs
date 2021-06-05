@@ -1,11 +1,6 @@
-use std::fs::File;
+use crate::models::options::FileOptions;
 
-#[derive(Debug)]
-pub struct AddOptions {
-    pub file: Option<File>,
-}
-
-pub fn now(options: &AddOptions) -> Result<(), std::io::Error> {
+pub fn now(options: &FileOptions) -> Result<(), std::io::Error> {
     match options.file.as_ref() {
         Some(file) => println!("Added {:?}\nOptions: {:?}", file, options),
         None => println!("File does not exist."),

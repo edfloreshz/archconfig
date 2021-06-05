@@ -1,8 +1,3 @@
-use crate::cmd::add::AddOptions;
-use crate::cmd::publish::PublishOptions;
-use crate::cmd::pull::PullOptions;
-use crate::cmd::push::PushOptions;
-use crate::cmd::remove::RemoveOptions;
 use crate::models::config::{AppOptions, Config, ConfigWriter, UserConfig};
 use clap::{App, Arg, ArgMatches, SubCommand};
 use std::env;
@@ -11,6 +6,9 @@ use std::process::exit;
 
 use crate::cmd::daemon::DaemonOptions;
 
+use super::options::FileOptions;
+use super::options::OnlineOptions;
+
 pub struct Command {
     subcmd: Subcommand,
 }
@@ -18,11 +16,11 @@ pub struct Command {
 enum Subcommand {
     Config(AppOptions),
     Daemon(DaemonOptions),
-    Publish(PublishOptions),
-    Add(AddOptions),
-    Remove(RemoveOptions),
-    Push(PushOptions),
-    Pull(PullOptions),
+    Publish(OnlineOptions),
+    Add(FileOptions),
+    Remove(FileOptions),
+    Push(OnlineOptions),
+    Pull(OnlineOptions),
     None,
 }
 
@@ -63,7 +61,7 @@ impl Command {
             }
         }
         if matches.is_present("pub") {
-            cmd.subcmd = Subcommand::Publish(PublishOptions {
+            cmd.subcmd = Subcommand::Publish(OnlineOptions {
                 data: UserConfig::new(configuration.clone().user?),
             });
         }
@@ -77,7 +75,7 @@ impl Command {
         if matches.is_present("pull") {
             subcmd = matches.subcommand_matches("pull")?;
             if subcmd.value_of("user").is_some() && subcmd.value_of("repo").is_some() {
-                cmd.subcmd = Subcommand::Pull(PullOptions {
+                cmd.subcmd = Subcommand::Pull(OnlineOptions {
                     data: UserConfig {
                         provider: configuration.user?.provider,
                         username: subcmd.value_of("user")?.to_string(),
@@ -85,14 +83,14 @@ impl Command {
                     },
                 });
             } else {
-                cmd.subcmd = Subcommand::Pull(PullOptions {
+                cmd.subcmd = Subcommand::Pull(OnlineOptions {
                     data: UserConfig::new(configuration.user?),
                 });
             }
         } else if matches.is_present("push") {
             subcmd = matches.subcommand_matches("push")?;
             if subcmd.value_of("user").is_some() && subcmd.value_of("repo").is_some() {
-                cmd.subcmd = Subcommand::Pull(PullOptions {
+                cmd.subcmd = Subcommand::Pull(OnlineOptions {
                     data: UserConfig {
                         provider: configuration.user?.provider,
                         username: subcmd.value_of("user")?.to_string(),
@@ -100,7 +98,7 @@ impl Command {
                     },
                 });
             } else {
-                cmd.subcmd = Subcommand::Push(PushOptions {
+                cmd.subcmd = Subcommand::Push(OnlineOptions {
                     data: UserConfig::new(configuration.user?),
                 })
             }
@@ -112,7 +110,7 @@ impl Command {
             } else {
                 file = None;
             }
-            cmd.subcmd = Subcommand::Add(AddOptions { file });
+            cmd.subcmd = Subcommand::Add(FileOptions { file });
         } else if matches.is_present("rem") {
             subcmd = matches.subcommand_matches("rem")?;
             let file_path = pwd.join(subcmd.value_of("file").unwrap());
@@ -121,7 +119,7 @@ impl Command {
             } else {
                 file = None;
             }
-            cmd.subcmd = Subcommand::Remove(RemoveOptions { file });
+            cmd.subcmd = Subcommand::Remove(FileOptions { file });
         }
         Some(cmd)
     }

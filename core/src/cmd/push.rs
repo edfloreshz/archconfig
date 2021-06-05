@@ -1,11 +1,6 @@
-use crate::models::config::UserConfig;
+use crate::models::options::OnlineOptions;
 
-#[derive(Debug)]
-pub struct PushOptions {
-    pub data: UserConfig,
-}
-
-pub fn now(options: &PushOptions) -> Result<(), std::io::Error> {
+pub fn now(options: &OnlineOptions) -> Result<(), std::io::Error> {
     println!(
         "Pushing dotfiles to {}\nOptions: {:?}",
         options.data.url(),

@@ -1,11 +1,6 @@
-use crate::models::config::UserConfig;
+use crate::models::options::OnlineOptions;
 
-#[derive(Debug)]
-pub struct PullOptions {
-    pub data: UserConfig,
-}
-
-pub fn now(options: &PullOptions) -> Result<(), std::io::Error> {
+pub fn now(options: &OnlineOptions) -> Result<(), std::io::Error> {
     println!("Pulling dotfiles...");
     println!("Options: {:?}", options);
     Ok(())
