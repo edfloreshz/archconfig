@@ -156,6 +156,7 @@ name = "dotsy_core"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "colour",
  "dirs",
  "dotsy_daemon",
  "serde",

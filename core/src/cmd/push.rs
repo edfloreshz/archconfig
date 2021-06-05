@@ -6,6 +6,10 @@ pub struct PushOptions {
 }
 
 pub fn now(options: &PushOptions) -> Result<(), std::io::Error> {
-    println!("Pushing dotfiles to {}\n Options: {:?}", "", options);
+    println!(
+        "Pushing dotfiles to {}\nOptions: {:?}",
+        options.data.url(),
+        options
+    );
     Ok(())
 }

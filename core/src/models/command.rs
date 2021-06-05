@@ -31,24 +31,25 @@ impl Command {
     pub fn new(matches: &ArgMatches) -> Option<Command> {
         let subcmd: &ArgMatches;
         let file: Option<File>;
-        let path = env::current_dir().unwrap();
-        let config =
-            std::fs::read_to_string(dirs::data_dir().unwrap().join("dotsy/logs/conf.toml"));
-        let userconf: UserConfig = match config {
-            Ok(e) => toml::from_str(e.as_str()).unwrap(),
-            Err(_) => panic!("Failed to get config."),
-        };
+        let pwd = env::current_dir().unwrap();
+        let mut configuration: AppOptions = AppOptions::default();
         let mut cmd = Command {
             subcmd: Subcommand::None,
         };
-        if matches.is_present("config") {
-            let provider = matches.subcommand_matches("config")?.value_of("provider")?;
-            let home = dirs::data_dir()?.join("dotsy");
-            let info = if !home.exists() {
-                Some(UserConfig::ask(provider))
+        let config_file = dirs::data_dir().unwrap().join("dotsy/config/config.toml");
+        let info = if config_file.exists() {
+            let config = std::fs::read_to_string(config_file);
+            configuration = if let Ok(cfile) = config {
+                toml::from_str(cfile.as_str()).unwrap()
             } else {
-                None
+                AppOptions::default()
             };
+            Some(configuration.clone().user?)
+        } else {
+            let provider = matches.subcommand_matches("config")?.value_of("provider")?;
+            Some(UserConfig::ask(provider))
+        };
+        if matches.is_present("config") {
             if matches.subcommand_matches("config")?.is_present("show") {}
             if matches.subcommand_matches("config")?.is_present("color") {
                 cmd.subcmd = Subcommand::Config(AppOptions {
@@ -64,12 +65,7 @@ impl Command {
         }
         if matches.is_present("pub") {
             cmd.subcmd = Subcommand::Publish(PublishOptions {
-                //TODO Get data from config.
-                data: GitUrl::new(
-                    userconf.provider.clone(),
-                    userconf.username.clone(),
-                    userconf.repository.clone(),
-                ),
+                data: GitUrl::new(configuration.clone().user?),
             });
         }
         if matches.is_present("daemon") {
@@ -83,33 +79,35 @@ impl Command {
             subcmd = matches.subcommand_matches("pull")?;
             if subcmd.value_of("user").is_some() && subcmd.value_of("repo").is_some() {
                 cmd.subcmd = Subcommand::Pull(PullOptions {
-                    data: GitUrl::new(
-                        userconf.provider.clone(),
-                        userconf.username.clone(),
-                        userconf.repository.clone(),
-                    ),
+                    data: GitUrl::new(UserConfig {
+                        provider: configuration.user?.provider,
+                        username: subcmd.value_of("user")?.to_string(),
+                        repository: subcmd.value_of("repo")?.to_string(),
+                    }),
                 });
             } else {
                 cmd.subcmd = Subcommand::Pull(PullOptions {
-                    data: GitUrl::default(userconf.provider.clone()),
+                    data: GitUrl::new(configuration.user?),
                 });
             }
         } else if matches.is_present("push") {
             subcmd = matches.subcommand_matches("push")?;
             if subcmd.value_of("user").is_some() && subcmd.value_of("repo").is_some() {
-                cmd.subcmd = Subcommand::Push(PushOptions {
-                    data: GitUrl::new(
-                        userconf.provider.clone(),
-                        userconf.username.clone(),
-                        userconf.repository.clone(),
-                    ),
+                cmd.subcmd = Subcommand::Pull(PullOptions {
+                    data: GitUrl::new(UserConfig {
+                        provider: configuration.user?.provider,
+                        username: subcmd.value_of("user")?.to_string(),
+                        repository: subcmd.value_of("repo")?.to_string(),
+                    }),
                 });
             } else {
-                return None;
+                cmd.subcmd = Subcommand::Push(PushOptions {
+                    data: GitUrl::new(configuration.user?),
+                })
             }
         } else if matches.is_present("add") {
             subcmd = matches.subcommand_matches("add")?;
-            let file_path = path.join(subcmd.value_of("file").unwrap());
+            let file_path = pwd.join(subcmd.value_of("file").unwrap());
             if file_path.exists() {
                 file = Some(File::open(file_path).unwrap());
             } else {
@@ -118,7 +116,7 @@ impl Command {
             cmd.subcmd = Subcommand::Add(AddOptions { file });
         } else if matches.is_present("rem") {
             subcmd = matches.subcommand_matches("rem")?;
-            let file_path = path.join(subcmd.value_of("file").unwrap());
+            let file_path = pwd.join(subcmd.value_of("file").unwrap());
             if file_path.exists() {
                 file = Some(File::open(file_path).unwrap());
             } else {

@@ -1,35 +1,21 @@
-use serde::{Deserialize, Serialize};
+use crate::models::config::UserConfig;
 
 #[derive(Debug)]
 pub struct GitUrl {
-    base: RepoProvider,
+    base: String,
     user: String,
     repo: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum RepoProvider {
-    GitHub(String),
-    GitLab(String),
-    Bitbucket(String),
-}
-
 impl GitUrl {
-    pub fn new(provider: RepoProvider, user: String, repo: String) -> GitUrl {
+    pub fn new(data: UserConfig) -> GitUrl {
         GitUrl {
-            base: provider,
-            user,
-            repo,
-        }
-    }
-    pub fn default(provider: RepoProvider) -> GitUrl {
-        GitUrl {
-            base: provider,
-            user: String::new(), //TODO: pull git user.
-            repo: String::new(), //TODO: pull default git repo.
+            base: data.provider,
+            user: data.username,
+            repo: data.repository,
         }
     }
     pub fn url(&self) -> String {
-        format!("{:?}/{}/{}", self.base, self.user, self.repo)
+        format!("{}/{}/{}", self.base, self.user, self.repo)
     }
 }

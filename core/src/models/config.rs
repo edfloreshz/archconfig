@@ -2,22 +2,30 @@ use serde::{Deserialize, Serialize};
 use std::io::Write;
 use text_io::read;
 
-use crate::utils::url::RepoProvider;
-
 pub trait ConfigWriter {
     fn write(&self) -> Result<(), std::io::Error> {
         Ok(())
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize, Debug)]
 pub struct AppOptions {
     pub config: Option<Config>,
     pub user: Option<UserConfig>,
 }
 
+impl AppOptions {
+    pub fn default() -> AppOptions {
+        AppOptions {
+            config: None,
+            user: None,
+        }
+    }
+}
+
 impl ConfigWriter for AppOptions {
     fn write(&self) -> Result<(), std::io::Error> {
+        println!("{:?}", self);
         let home = dirs::data_dir().unwrap().join("dotsy");
         if self.user.is_some() {
             let mut config_file = std::fs::File::create(home.join("config/config.toml"))?;
@@ -38,7 +46,7 @@ pub struct Config {
 pub struct UserConfig {
     pub username: String,
     pub repository: String,
-    pub provider: RepoProvider,
+    pub provider: String,
 }
 
 impl UserConfig {
@@ -53,16 +61,10 @@ impl UserConfig {
                 read!()
             },
             provider: match provider {
-                "GitHub" | "github" | "Github" => {
-                    RepoProvider::GitHub("https://github.com/".into())
-                }
-                "GitLab" | "gitlab" | "Gitlab" => {
-                    RepoProvider::GitLab("https://gitlab.com/".into())
-                }
-                "Bitbucket" | "bitbucket" => {
-                    RepoProvider::Bitbucket("https://bitbucket.com/".into())
-                }
-                _ => RepoProvider::Bitbucket("https://bitbucket.com/".into()),
+                "GitHub" | "github" | "Github" => "https://github.com".into(),
+                "GitLab" | "gitlab" | "Gitlab" => "https://gitlab.com".into(),
+                "Bitbucket" | "bitbucket" => "https://bitbucket.com".into(),
+                _ => panic!("Enter a valid provider."),
             },
         }
     }
@@ -70,7 +72,7 @@ impl UserConfig {
         UserConfig {
             username: String::new(),
             repository: String::new(),
-            provider: RepoProvider::GitHub("".into()),
+            provider: String::new(),
         }
     }
 }
