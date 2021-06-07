@@ -2,6 +2,7 @@ use crate::models::config::{AppOptions, Config, ConfigWriter, UserConfig};
 use clap::{App, Arg, ArgMatches, SubCommand};
 use std::env;
 use std::fs::File;
+use std::path::PathBuf;
 use std::process::exit;
 
 use crate::cmd::daemon::DaemonOptions;
@@ -28,19 +29,19 @@ impl Command {
     pub fn new(matches: &ArgMatches) -> Option<Command> {
         let subcmd: &ArgMatches;
         let file: Option<File>;
-        let pwd = env::current_dir().unwrap();
+        let pwd = env::current_dir().unwrap_or(PathBuf::new());
         let mut configuration: AppOptions = AppOptions::default();
         let mut cmd = Command {
             subcmd: Subcommand::None,
         };
-        let config_file = dirs::data_dir().unwrap().join("dotsy/config/config.toml");
+        let config_file = dirs::data_dir()
+            .unwrap_or_else(|| PathBuf::new())
+            .join("dotsy/config/config.toml");
         let info = if config_file.exists() {
-            let config = std::fs::read_to_string(config_file);
-            configuration = if let Ok(cfile) = config {
-                toml::from_str(cfile.as_str()).unwrap()
-            } else {
-                AppOptions::default()
-            };
+            let file_content =
+                std::fs::read_to_string(config_file).unwrap_or_else(|_| String::new());
+            configuration =
+                toml::from_str(file_content.as_str()).unwrap_or_else(|_| AppOptions::default());
             Some(configuration.clone().user?)
         } else {
             let provider = matches.subcommand_matches("config")?.value_of("provider")?;
@@ -104,16 +105,16 @@ impl Command {
             }
         } else if matches.is_present("add") {
             subcmd = matches.subcommand_matches("add")?;
-            let file_path = pwd.join(subcmd.value_of("file").unwrap());
-            if file_path.exists() {
-                file = Some(File::open(file_path).unwrap());
+            let file_path = pwd.join(subcmd.value_of("file").unwrap_or_default());
+            file = if file_path.exists() {
+                Some(File::open(file_path).unwrap())
             } else {
-                file = None;
-            }
+                None
+            };
             cmd.subcmd = Subcommand::Add(FileOptions { file });
         } else if matches.is_present("rem") {
             subcmd = matches.subcommand_matches("rem")?;
-            let file_path = pwd.join(subcmd.value_of("file").unwrap());
+            let file_path = pwd.join(subcmd.value_of("file").unwrap_or_default());
             if file_path.exists() {
                 file = Some(File::open(file_path).unwrap());
             } else {

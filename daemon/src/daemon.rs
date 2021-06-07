@@ -2,13 +2,13 @@ use colour::{self, green, white, yellow_ln};
 use daemonize::Daemonize;
 use dirs;
 use psutil;
-use std::fs;
+use std::{fs, path::PathBuf};
 
 use crate::watch::watch;
 use std::process::Command;
 
 pub fn construct() -> Result<(), std::io::Error> {
-    let home = dirs::data_dir().unwrap().join("dotsy");
+    let home = dirs::data_dir().unwrap_or(PathBuf::new()).join("dotsy");
     let stdout = fs::File::create(home.join("logs/daemon.out"))?;
     let stderr = fs::File::create(home.join("logs/daemon.err"))?;
     let daemonize = Daemonize::new()
@@ -34,7 +34,7 @@ pub fn construct() -> Result<(), std::io::Error> {
 }
 
 pub fn show() -> Result<(), std::io::Error> {
-    let processes = psutil::process::processes().unwrap();
+    let processes = psutil::process::processes().unwrap_or_default();
     let mut count = 0;
     for process in processes {
         if process.unwrap().name().unwrap() == "dotsy" {
@@ -42,7 +42,7 @@ pub fn show() -> Result<(), std::io::Error> {
         }
     }
     if count > 1 {
-        let home = dirs::data_dir().unwrap().join("dotsy");
+        let home = dirs::data_dir().unwrap_or(PathBuf::new()).join("dotsy");
         yellow_ln!("Waiting for changes...");
         Command::new("tail")
             .arg("-f")

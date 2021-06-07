@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::io::Write;
+use std::{io::Write, path::PathBuf};
 use text_io::read;
 
 pub trait ConfigWriter {
@@ -26,11 +26,11 @@ impl AppOptions {
 impl ConfigWriter for AppOptions {
     fn write(&self) -> Result<(), std::io::Error> {
         println!("{:?}", self);
-        let home = dirs::data_dir().unwrap().join("dotsy");
+        let home = dirs::data_dir().unwrap_or(PathBuf::new()).join("dotsy");
         if self.user.is_some() {
             let mut config_file = std::fs::File::create(home.join("config/config.toml"))?;
             config_file
-                .write_all(toml::to_string(self).unwrap().as_bytes())
+                .write_all(toml::to_string(self).unwrap_or(String::new()).as_bytes())
                 .expect("Unable to write data.");
         }
         Ok(())

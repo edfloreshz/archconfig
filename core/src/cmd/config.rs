@@ -1,7 +1,7 @@
-use std::fs;
+use std::{fs, path::PathBuf};
 
 pub fn start() -> Result<(), std::io::Error> {
-    let home = dirs::data_dir().unwrap().join("dotsy");
+    let home = dirs::data_dir().unwrap_or(PathBuf::new()).join("dotsy");
     if !home.exists() {
         fs::create_dir_all(home.join("logs"))?;
         fs::create_dir_all(home.join("config"))?;
