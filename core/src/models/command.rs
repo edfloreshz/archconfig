@@ -1,11 +1,10 @@
-use crate::models::config::{AppOptions, Config, ConfigWriter, UserConfig};
 use clap::{App, Arg, ArgMatches, SubCommand};
 use std::env;
 use std::fs::File;
 use std::path::PathBuf;
-use std::process::exit;
 
 use crate::cmd::daemon::DaemonOptions;
+use crate::models::config::{AppOptions, Config, ConfigWriter, UserConfig};
 
 use super::options::FileOptions;
 use super::options::OnlineOptions;
@@ -35,13 +34,11 @@ impl Command {
             subcmd: Subcommand::None,
         };
         let config_file = dirs::data_dir()
-            .unwrap_or_else(|| PathBuf::new())
+            .unwrap_or(PathBuf::new())
             .join("dotsy/config/config.toml");
         let info = if config_file.exists() {
-            let file_content =
-                std::fs::read_to_string(config_file).unwrap_or_else(|_| String::new());
-            configuration =
-                toml::from_str(file_content.as_str()).unwrap_or_else(|_| AppOptions::default());
+            let file_content = std::fs::read_to_string(config_file).unwrap_or(String::new());
+            configuration = toml::from_str(file_content.as_str()).unwrap_or(AppOptions::default());
             Some(configuration.clone().user?)
         } else {
             let provider = matches.subcommand_matches("config")?.value_of("provider")?;
@@ -142,7 +139,7 @@ impl Command {
             Subcommand::Remove(options) => crate::cmd::remove::now(options),
             Subcommand::Push(options) => crate::cmd::push::now(options),
             Subcommand::Pull(options) => crate::cmd::pull::now(options),
-            Subcommand::None => exit(0),
+            Subcommand::None => Ok(println!("Type `dotsy help` if you need help.")),
         }
     }
 }
