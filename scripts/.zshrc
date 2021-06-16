@@ -122,6 +122,7 @@ alias gpl='git pull'
 alias gplr='git pull upstream'
 alias gc='git commit -am'
 alias gs='git status'
+alias gsw='git switch'
 alias gl='git log --oneline'
 
 # File Manipulation
