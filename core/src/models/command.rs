@@ -1,8 +1,9 @@
-use clap::{App, Arg, ArgMatches, SubCommand};
+use clap::ArgMatches;
 use std::env;
 use std::fs::File;
 use std::path::PathBuf;
 
+use crate::cmd::*;
 use crate::cmd::daemon::DaemonOptions;
 use crate::models::config::{AppOptions, Config, ConfigWriter, UserConfig};
 
@@ -124,116 +125,22 @@ impl Command {
     pub fn execute(&self) -> Result<(), std::io::Error> {
         match &self.subcmd {
             Subcommand::Config(options) => {
-                crate::cmd::config::start()?;
+                config::start()?;
                 options.write()
             }
             Subcommand::Daemon(options) => {
                 if options.show {
-                    crate::cmd::daemon::show()
+                    daemon::show()
                 } else {
-                    crate::cmd::daemon::start()
+                    daemon::start()
                 }
             }
-            Subcommand::Publish(options) => crate::cmd::publish::now(options),
-            Subcommand::Add(options) => crate::cmd::add::now(options),
-            Subcommand::Remove(options) => crate::cmd::remove::now(options),
-            Subcommand::Push(options) => crate::cmd::push::now(options),
-            Subcommand::Pull(options) => crate::cmd::pull::now(options),
+            Subcommand::Publish(options) => publish::now(options),
+            Subcommand::Add(options) => add::now(options),
+            Subcommand::Remove(options) => remove::now(options),
+            Subcommand::Push(options) => push::now(options),
+            Subcommand::Pull(options) => pull::now(options),
             Subcommand::None => Ok(println!("Type `dotsy help` if you need help.")),
         }
     }
-}
-
-pub fn parse_args() -> ArgMatches<'static> {
-    App::new("Dotsy")
-        .version("0.1.0")
-        .author("Eduardo F. 🥑 <edfloreshz@gmail.com>")
-        .about("Dotsy is a configuration manager for UNIX-based systems.")
-        .subcommand(
-            SubCommand::with_name("config")
-                .about("Initializes local configuration.")
-                .arg(
-                    Arg::with_name("provider")
-                        .short("p")
-                        .long("provider")
-                        .required(true)
-                        .index(1)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::with_name("color")
-                        .short("c")
-                        .long("color")
-                        .help("Toggle color"),
-                )
-                .arg(
-                    Arg::with_name("open")
-                        .short("o")
-                        .long("open")
-                        .help("Open config file for editing."),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name("pub")
-                .about("Publishes local git repository to desired provider."),
-        )
-        .subcommand(
-            SubCommand::with_name("add")
-                .about("Add a dotfile to tracking.")
-                .arg(
-                    Arg::with_name("file")
-                        .index(1)
-                        .multiple(true)
-                        .required(true),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name("rem")
-                .about("Remove a dotfile from tracking.")
-                .arg(
-                    Arg::with_name("file")
-                        .index(1)
-                        .multiple(true)
-                        .required(true),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name("push")
-                .about("Push changes to git repo.")
-                .arg(
-                    Arg::with_name("user")
-                        .help("Specify a GitHub user.")
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::with_name("repo")
-                        .help("Specify a GitHub repo to push to.")
-                        .takes_value(true),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name("pull")
-                .about("Pull changes from git repo.")
-                .arg(
-                    Arg::with_name("user")
-                        .help("Specify a GitHub user.")
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::with_name("repo")
-                        .help("Specify a GitHub repo to pull from.")
-                        .takes_value(true),
-                ),
-        )
-        .subcommand(
-            SubCommand::with_name("daemon")
-                .about("Starts the daemon and shows the output.")
-                .arg(
-                    Arg::with_name("show")
-                        .help("Show output from daemon.")
-                        .short("s")
-                        .long("show"),
-                ),
-        )
-        .get_matches()
 }

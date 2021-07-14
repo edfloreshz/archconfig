@@ -60,10 +60,10 @@ impl UserConfig {
                 println!("Type your Git repository: ");
                 read!()
             },
-            provider: match provider {
-                "GitHub" | "github" | "Github" => "https://github.com".into(),
-                "GitLab" | "gitlab" | "Gitlab" => "https://gitlab.com".into(),
-                "Bitbucket" | "bitbucket" => "https://bitbucket.com".into(),
+            provider: match provider.to_lowercase().as_str() {
+                "github" => "https://github.com".into(),
+                "gitlab" => "https://gitlab.com".into(),
+                "bitbucket" => "https://bitbucket.com".into(),
                 _ => panic!("Enter a valid provider."),
             },
         }

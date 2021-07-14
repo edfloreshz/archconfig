@@ -1,3 +1,4 @@
+pub mod args;
 pub mod add;
 pub mod config;
 pub mod daemon;
