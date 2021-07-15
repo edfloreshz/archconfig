@@ -9,25 +9,27 @@ pub fn parse_args() -> ArgMatches<'static> {
             SubCommand::with_name("config")
                 .about("Initializes local configuration.")
                 .arg(
-                    Arg::with_name("provider")
-                        .short("p")
-                        .long("provider")
-                        .required(true)
-                        .index(1)
-                        .takes_value(true),
-                )
-                .arg(
-                    Arg::with_name("color")
-                        .short("c")
-                        .long("color")
-                        .help("Toggle color"),
-                )
-                .arg(
                     Arg::with_name("open")
                         .short("o")
                         .long("open")
                         .help("Open config file for editing."),
-                ),
+                )
+                .arg(
+                    Arg::with_name("reset")
+                        .short("r")
+                        .long("reset")
+                        .help("Reset configuration directory."),
+                )
+                .subcommand(
+                    SubCommand::with_name("init")
+                        .about("Initialize the configuration directory.")
+                        .arg(
+                            Arg::with_name("color")
+                                .short("c")
+                                .long("color")
+                                .help("Enable color.")
+                        )
+                )
         )
         .subcommand(
             SubCommand::with_name("pub")

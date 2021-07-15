@@ -6,7 +6,7 @@ fn main() -> Result<(), std::io::Error> {
     let checked = Command::new(&matches);
     match checked {
         Some(cmd) => cmd.execute()?,
-        None => eprintln!("Hmm, that can't be right."),
+        None => eprintln!("Type `dotsy help` if you need help."),
     }
     Ok(())
 }

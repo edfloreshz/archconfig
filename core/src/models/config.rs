@@ -1,9 +1,10 @@
-use serde::{Deserialize, Serialize};
 use std::{io::Write, path::PathBuf};
+
+use serde::{Deserialize, Serialize};
 use text_io::read;
 
 pub trait ConfigWriter {
-    fn write(&self) -> Result<(), std::io::Error> {
+    fn write_to_config(&self) -> Result<(), std::io::Error> {
         Ok(())
     }
 }
@@ -24,8 +25,7 @@ impl AppOptions {
 }
 
 impl ConfigWriter for AppOptions {
-    fn write(&self) -> Result<(), std::io::Error> {
-        println!("{:?}", self);
+    fn write_to_config(&self) -> Result<(), std::io::Error> {
         let home = dirs::data_dir().unwrap_or(PathBuf::new()).join("dotsy");
         if self.user.is_some() {
             let mut config_file = std::fs::File::create(home.join("config/config.toml"))?;
@@ -42,6 +42,17 @@ pub struct Config {
     pub color: bool,
 }
 
+impl Config {
+    pub fn default() -> Config {
+        Config {
+            color: false
+        }
+    }
+    pub fn switch(&mut self) {
+        self.color = !self.color
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserConfig {
     pub username: String,
@@ -50,7 +61,7 @@ pub struct UserConfig {
 }
 
 impl UserConfig {
-    pub fn ask(provider: &str) -> UserConfig {
+    pub fn ask() -> UserConfig {
         UserConfig {
             username: {
                 println!("Type your Git username: ");
@@ -60,11 +71,15 @@ impl UserConfig {
                 println!("Type your Git repository: ");
                 read!()
             },
-            provider: match provider.to_lowercase().as_str() {
-                "github" => "https://github.com".into(),
-                "gitlab" => "https://gitlab.com".into(),
-                "bitbucket" => "https://bitbucket.com".into(),
-                _ => panic!("Enter a valid provider."),
+            provider: {
+                println!("Type your Git repository provider.");
+                let provider: String = read!();
+                match provider.to_lowercase().as_str() {
+                    "github" => "https://github.com".into(),
+                    "gitlab" => "https://gitlab.com".into(),
+                    "bitbucket" => "https://bitbucket.com".into(),
+                    _ => panic!("Enter a valid provider."),
+                }
             },
         }
     }
